@@ -1,6 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { Config, EnvSchema, FileConfigSchema } from './schema'
+import { log, logError } from '../utils/logger'
 
 const CONFIG_PATH = path.join(__dirname, '..', 'data', 'config.json')
 
@@ -34,5 +35,5 @@ export async function writeConfig(config: Config): Promise<void> {
   const tmpPath = `${CONFIG_PATH}.tmp`
   await fs.writeFile(tmpPath, JSON.stringify(fileConfig, null, 2), 'utf-8')
   await fs.rename(tmpPath, CONFIG_PATH)
-  console.log('Config saved.')
+  log(['Config'], 'Saved.')
 }

@@ -4,6 +4,10 @@ export function dateTimeToYMD(dateTime: string): string {
   return dateTime.slice(0, 10)
 }
 
+export function currentTime(): string {
+  return new Date().toTimeString().slice(0, 8)
+}
+
 export function currentDate(): string {
   return dateTimeToYMD(new Date().toISOString())
 }

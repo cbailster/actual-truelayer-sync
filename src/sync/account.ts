@@ -1,9 +1,10 @@
 import { importTransactions } from '../actual/actual'
 import { getAccountTransactions, getCardTransactions } from '../truelayer/truelayer'
 import { transformTransactions } from '../transform/transform'
-import { computeFromDate, dateTimeToYMD } from '../utils/date'
+import { computeFromDate } from '../utils/date'
 import { resolveIsCard } from '../utils/account'
-import { buildImportSummary, logNetworkError } from '../utils/logging'
+import { buildImportSummary } from '../utils/logging'
+import { log, logError } from '../utils/logger'
 import type { Account, Connection } from '../config/schema'
 import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from '../truelayer/types'
 
@@ -14,10 +15,10 @@ export async function syncAccount(
   trueLayerAccountsById: Map<string, TrueLayerAccount | TrueLayerCard>,
   includeCategoryInNotes: boolean,
 ): Promise<boolean> {
-  const prefix = `[${connection.name}][${configAccount.friendlyName}]`
+  const prefix = [connection.name, configAccount.friendlyName]
   const fromDate = configAccount.lastSyncDate ? computeFromDate(configAccount.lastSyncDate) : undefined
 
-  console.log(`${prefix} Fetching transactions${fromDate ? ` since ${fromDate}` : ''}...`)
+  log(prefix, `Fetching transactions${fromDate ? ` since ${fromDate}` : ''}...`)
 
   const isCard = resolveIsCard(configAccount, connection)
   let trueLayerTransactions: TrueLayerTransaction[]
@@ -26,7 +27,7 @@ export async function syncAccount(
       ? await getCardTransactions(accessToken, configAccount.trueLayerId, fromDate)
       : await getAccountTransactions(accessToken, configAccount.trueLayerId, fromDate)
   } catch (err) {
-    logNetworkError(`${prefix} Failed to fetch transactions:`, err)
+    logError(prefix, 'Failed to fetch transactions:', err)
     return false
   }
 
@@ -39,20 +40,20 @@ export async function syncAccount(
   )
 
   if (transactions.length === 0) {
-    console.log(`${prefix} └ No transactions.`)
+    log(prefix, '└ No transactions.')
     return false
   }
 
-  console.log(`${prefix} └ Found ${transactions.length} transactions.`)
+  log(prefix, `└ Found ${transactions.length} transactions.`)
   const dates = trueLayerTransactions.map((t) => t.timestamp).sort()
-  const from = dateTimeToYMD(dates[0])
-  const to = dateTimeToYMD(dates[dates.length - 1])
+  const from = dates[0].slice(0, 10)
+  const to = dates[dates.length - 1].slice(0, 10)
 
   try {
     const result = await importTransactions(configAccount.actualId, transactions)
-    console.log(`${prefix} └ ${buildImportSummary(result.added.length, result.updated.length)} (${from} → ${to}).`)
+    log(prefix, `└ ${buildImportSummary(result.added.length, result.updated.length)} (${from} → ${to}).`)
   } catch (err) {
-    logNetworkError(`${prefix} Failed to import transactions:`, err)
+    logError(prefix, 'Failed to import transactions:', err)
     return false
   }
 

@@ -2,6 +2,7 @@ import cron from 'node-cron'
 import { loadConfig, writeConfig } from './config/config'
 import { initActual, shutdownActual } from './actual/actual'
 import { syncConnection } from './sync/connection'
+import { log, logError } from './utils/logger'
 import type { Config } from './config/schema'
 
 async function mainTask(config: Config): Promise<void> {
@@ -21,10 +22,10 @@ async function mainTask(config: Config): Promise<void> {
       }
     }
   } catch (e) {
-    console.error('\nGlobal Sync Error:', String(e))
+    logError(['Sync'], 'Global sync error:', e)
   } finally {
     await shutdownActual()
-    console.log('\nSync cycle finished. Sleeping...')
+    log(['Sync'], 'Sync cycle finished. Sleeping...')
   }
 }
 
@@ -33,7 +34,7 @@ void (async () => {
   try {
     config = await loadConfig()
   } catch (err) {
-    console.error(String(err))
+    logError(['Sync'], 'Failed to load config:', err)
     process.exit(1)
   }
 
@@ -41,13 +42,14 @@ void (async () => {
 
   if (config.env.CRON_SCHEDULE) {
     const timezone = config.env.TZ
-    console.log(
+    log(
+      ['Sync'],
       `Scheduler initialized with pattern: ${config.env.CRON_SCHEDULE}${timezone ? ` (timezone: ${timezone})` : ''}`,
     )
     cron.schedule(
       config.env.CRON_SCHEDULE,
       () => {
-        mainTask(config).catch((err) => console.error('Unhandled task error:', err))
+        mainTask(config).catch((err) => logError(['Sync'], 'Unhandled task error:', err))
       },
       {
         noOverlap: true,
@@ -58,8 +60,8 @@ void (async () => {
 })()
 
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down...')
+  log(['Sync'], 'SIGTERM received, shutting down...')
   shutdownActual()
-    .catch((err) => console.error('Error during shutdown:', err))
+    .catch((err) => logError(['Sync'], 'Error during shutdown:', err))
     .finally(() => process.exit(0))
 })

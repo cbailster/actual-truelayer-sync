@@ -2,14 +2,14 @@ import { refreshToken } from '../truelayer/truelayer'
 import { syncAccount } from './account'
 import { fetchAccountMap } from './accounts'
 import { currentDate } from '../utils/date'
+import { log, logError } from '../utils/logger'
 import type { Account, Connection, Config } from '../config/schema'
-import { logNetworkError } from '../utils/logging'
 import type { TrueLayerAccount, TrueLayerCard } from '../truelayer/types'
 
 export async function syncConnection(connection: Connection, config: Config): Promise<Connection | undefined> {
   const startedAt = Date.now()
-  console.log(`\n[${connection.name}] --- Syncing @ ${new Date().toISOString()} ---`)
-  console.log(`[${connection.name}] Authenticating with TrueLayer...`)
+  const prefix = [connection.name]
+  log(prefix, 'Starting sync, authenticating with TrueLayer...')
 
   let accessToken: string
   let newRefreshToken: string
@@ -22,18 +22,18 @@ export async function syncConnection(connection: Connection, config: Config): Pr
     accessToken = access_token
     newRefreshToken = refresh_token
   } catch (err) {
-    logNetworkError(`[${connection.name}] Authentication failed:`, err)
+    logError(prefix, 'Authentication failed:', err)
     return undefined
   }
 
   const tokenChanged = newRefreshToken !== connection.refreshToken
-  console.log(`[${connection.name}] └ Refresh token ${tokenChanged ? 'CHANGED' : 'unchanged'}.`)
+  log(prefix, `└ Refresh token ${tokenChanged ? 'CHANGED' : 'unchanged'}.`)
 
   let trueLayerAccountsById: Map<string, TrueLayerAccount | TrueLayerCard>
   try {
     trueLayerAccountsById = await fetchAccountMap(connection, accessToken)
   } catch (err) {
-    logNetworkError(`[${connection.name}] Sync failed:`, err)
+    logError(prefix, 'Sync failed:', err)
     return { ...connection, refreshToken: newRefreshToken }
   }
 
@@ -50,7 +50,7 @@ export async function syncConnection(connection: Connection, config: Config): Pr
   }
 
   const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1)
-  console.log(`[${connection.name}] Done in ${elapsed}s.`)
+  log(prefix, `Done in ${elapsed}s.`)
 
   return { ...connection, refreshToken: newRefreshToken, accounts: updatedAccounts }
 }
