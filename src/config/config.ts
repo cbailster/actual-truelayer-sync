@@ -1,9 +1,9 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { Config, EnvSchema, FileConfigSchema } from './schema'
-import { log, logError } from '../utils/logger'
+import { log } from '../utils/logger'
 
-const CONFIG_PATH = path.join(__dirname, '..', 'data', 'config.json')
+const CONFIG_PATH = path.join(__dirname, '..', '..', 'data', 'config.json')
 
 export async function loadConfig(): Promise<Config> {
   // Validate environment variables
