@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { fetchAccountMap } from './accounts'
-import type { Connection } from '../config/schema'
-import type { TrueLayerAccount, TrueLayerCard } from '../truelayer/types'
-
-vi.mock('../truelayer/truelayer')
-vi.mock('axios')
-
-import * as truelayer from '../truelayer/truelayer'
 import axios from 'axios'
+import type { Connection } from '../config/schema'
+import * as truelayer from '../truelayer/truelayer'
+import type { TrueLayerAccount, TrueLayerCard } from '../truelayer/types'
+import { fetchAccountMap } from './accounts'
+
+vi.mock('axios')
+vi.mock('../truelayer/truelayer')
+vi.mock('../utils/logger')
 
 const baseConnection: Connection = {
   name: 'My Bank',

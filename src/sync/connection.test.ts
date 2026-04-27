@@ -7,6 +7,7 @@ import * as account from './account'
 import { syncConnection } from './connection'
 
 vi.mock('axios')
+vi.mock('../utils/logger')
 vi.mock('../truelayer/truelayer')
 vi.mock('./accounts')
 vi.mock('./account')
@@ -140,5 +141,18 @@ describe('syncConnection', () => {
 
     expect(result?.refreshToken).toBe('new-refresh')
     expect(result?.accounts).toEqual(baseConnection.accounts)
+  })
+
+  it('passes dryRun flag through to syncAccount', async () => {
+    vi.mocked(truelayer.refreshToken).mockResolvedValueOnce({
+      access_token: 'new-access',
+      refresh_token: 'old-refresh-token',
+    })
+    vi.mocked(accounts.fetchAccountMap).mockResolvedValueOnce(new Map())
+    vi.mocked(account.syncAccount).mockResolvedValueOnce(false)
+
+    await syncConnection({ ...baseConnection }, baseConfig, true)
+
+    expect(account.syncAccount).toHaveBeenCalledWith(expect.objectContaining({ dryRun: true }))
   })
 })

@@ -7,6 +7,7 @@ import { syncAccount } from './account'
 
 vi.mock('../actual/actual')
 vi.mock('../truelayer/truelayer')
+vi.mock('../utils/logger')
 
 const baseConnection: Connection = {
   name: 'My Bank',
