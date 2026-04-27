@@ -3,8 +3,8 @@ import { syncAccount } from './account'
 import type { Account, Connection } from '../config/schema'
 import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from '../truelayer/types'
 
-vi.mock('../actual')
-vi.mock('../truelayer')
+vi.mock('../actual/actual')
+vi.mock('../truelayer/truelayer')
 
 import * as actual from '../actual/actual'
 import * as truelayer from '../truelayer/truelayer'

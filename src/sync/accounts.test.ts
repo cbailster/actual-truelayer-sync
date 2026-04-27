@@ -3,7 +3,7 @@ import { fetchAccountMap } from './accounts'
 import type { Connection } from '../config/schema'
 import type { TrueLayerAccount, TrueLayerCard } from '../truelayer/types'
 
-vi.mock('../truelayer')
+vi.mock('../truelayer/truelayer')
 vi.mock('axios')
 
 import * as truelayer from '../truelayer/truelayer'

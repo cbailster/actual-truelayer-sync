@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { syncConnection } from './connection'
 import type { Connection, Config } from '../config/schema'
 
-vi.mock('../truelayer')
+vi.mock('../truelayer/truelayer')
 vi.mock('./accounts')
 vi.mock('./account')
 vi.mock('axios')
