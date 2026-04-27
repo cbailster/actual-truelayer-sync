@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { shouldFlipAmount, toActualAmount, transformTransaction, transformTransactions } from '../src/transform'
-import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from '../src/types'
+import { shouldFlipAmount, toActualAmount, transformTransaction, transformTransactions } from './transform'
+import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from './types'
 import { Account } from './config/schema'
 
 const baseAccount: Account = {
