@@ -23,7 +23,7 @@ export async function importTransactions(
 ): Promise<{ added: string[]; updated: string[] }> {
   const result = await actual.importTransactions(accountId, transactions)
   if (result.errors.length > 0) {
-    console.warn(`Import warnings for ${accountId}:`, result.errors)
+    throw new Error(`Import errors for account ${accountId}: ${JSON.stringify(result.errors)}`)
   }
   return { added: result.added, updated: result.updated }
 }
