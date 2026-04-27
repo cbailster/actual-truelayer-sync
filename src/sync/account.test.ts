@@ -1,13 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { syncAccount } from './account'
 import type { Account, Connection } from '../config/schema'
 import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from '../truelayer/types'
+import * as actual from '../actual/actual'
+import * as truelayer from '../truelayer/truelayer'
+import { syncAccount } from './account'
 
 vi.mock('../actual/actual')
 vi.mock('../truelayer/truelayer')
-
-import * as actual from '../actual/actual'
-import * as truelayer from '../truelayer/truelayer'
 
 const baseConnection: Connection = {
   name: 'My Bank',
@@ -43,7 +42,14 @@ const mockTransaction: TrueLayerTransaction = {
 }
 
 const emptyAccountsById = new Map<string, TrueLayerAccount | TrueLayerCard>()
-const accountsById = new Map<string, TrueLayerAccount | TrueLayerCard>([['acc-1', mockTrueLayerAccount]])
+const trueLayerAccountsById = new Map<string, TrueLayerAccount | TrueLayerCard>([['acc-1', mockTrueLayerAccount]])
+
+const baseOptions = {
+  connection: baseConnection,
+  accessToken: 'access-token',
+  trueLayerAccountsById,
+  includeCategoryInNotes: false,
+}
 
 describe('syncAccount', () => {
   beforeEach(() => vi.clearAllMocks())
@@ -52,7 +58,7 @@ describe('syncAccount', () => {
     vi.mocked(truelayer.getAccountTransactions).mockResolvedValueOnce([mockTransaction])
     vi.mocked(actual.importTransactions).mockResolvedValueOnce({ added: ['txn-1'], updated: [] })
 
-    await syncAccount({ ...baseAccount }, baseConnection, 'access-token', accountsById, false)
+    await syncAccount({ ...baseOptions, configAccount: baseAccount })
 
     expect(truelayer.getAccountTransactions).toHaveBeenCalledWith('access-token', 'acc-1', undefined)
     expect(actual.importTransactions).toHaveBeenCalledWith('actual-acc-1', expect.any(Array))
@@ -62,7 +68,7 @@ describe('syncAccount', () => {
     vi.mocked(truelayer.getCardTransactions).mockResolvedValueOnce([mockTransaction])
     vi.mocked(actual.importTransactions).mockResolvedValueOnce({ added: ['txn-1'], updated: [] })
 
-    await syncAccount({ ...baseAccount, isCard: true }, baseConnection, 'access-token', accountsById, false)
+    await syncAccount({ ...baseOptions, configAccount: { ...baseAccount, isCard: true } })
 
     expect(truelayer.getCardTransactions).toHaveBeenCalledWith('access-token', 'acc-1', undefined)
     expect(truelayer.getAccountTransactions).not.toHaveBeenCalled()
@@ -72,13 +78,7 @@ describe('syncAccount', () => {
     vi.mocked(truelayer.getAccountTransactions).mockResolvedValueOnce([mockTransaction])
     vi.mocked(actual.importTransactions).mockResolvedValueOnce({ added: [], updated: [] })
 
-    await syncAccount(
-      { ...baseAccount, lastSyncDate: '2026-04-24' },
-      baseConnection,
-      'access-token',
-      accountsById,
-      false,
-    )
+    await syncAccount({ ...baseOptions, configAccount: { ...baseAccount, lastSyncDate: '2026-04-24' } })
 
     expect(truelayer.getAccountTransactions).toHaveBeenCalledWith('access-token', 'acc-1', '2026-04-10')
   })
@@ -86,7 +86,7 @@ describe('syncAccount', () => {
   it('does not call importTransactions when no transactions returned', async () => {
     vi.mocked(truelayer.getAccountTransactions).mockResolvedValueOnce([])
 
-    await syncAccount(baseAccount, baseConnection, 'access-token', emptyAccountsById, false)
+    await syncAccount({ ...baseOptions, configAccount: baseAccount, trueLayerAccountsById: emptyAccountsById })
 
     expect(actual.importTransactions).not.toHaveBeenCalled()
   })
@@ -95,7 +95,7 @@ describe('syncAccount', () => {
     vi.mocked(truelayer.getAccountTransactions).mockResolvedValueOnce([mockTransaction])
     vi.mocked(actual.importTransactions).mockResolvedValueOnce({ added: ['txn-1'], updated: [] })
 
-    const result = await syncAccount({ ...baseAccount }, baseConnection, 'access-token', accountsById, false)
+    const result = await syncAccount({ ...baseOptions, configAccount: baseAccount })
 
     expect(result).toBe(true)
   })
@@ -103,7 +103,11 @@ describe('syncAccount', () => {
   it('returns false when no transactions returned', async () => {
     vi.mocked(truelayer.getAccountTransactions).mockResolvedValueOnce([])
 
-    const result = await syncAccount({ ...baseAccount }, baseConnection, 'access-token', emptyAccountsById, false)
+    const result = await syncAccount({
+      ...baseOptions,
+      configAccount: baseAccount,
+      trueLayerAccountsById: emptyAccountsById,
+    })
 
     expect(result).toBe(false)
   })
@@ -111,7 +115,11 @@ describe('syncAccount', () => {
   it('returns false when fetching transactions fails', async () => {
     vi.mocked(truelayer.getAccountTransactions).mockRejectedValueOnce(new Error('Network error'))
 
-    const result = await syncAccount({ ...baseAccount }, baseConnection, 'access-token', emptyAccountsById, false)
+    const result = await syncAccount({
+      ...baseOptions,
+      configAccount: baseAccount,
+      trueLayerAccountsById: emptyAccountsById,
+    })
 
     expect(result).toBe(false)
     expect(actual.importTransactions).not.toHaveBeenCalled()
@@ -121,8 +129,17 @@ describe('syncAccount', () => {
     vi.mocked(truelayer.getAccountTransactions).mockResolvedValueOnce([mockTransaction])
     vi.mocked(actual.importTransactions).mockRejectedValueOnce(new Error('Import error'))
 
-    const result = await syncAccount({ ...baseAccount }, baseConnection, 'access-token', accountsById, false)
+    const result = await syncAccount({ ...baseOptions, configAccount: baseAccount })
 
     expect(result).toBe(false)
+  })
+
+  it('returns false and does not import when dryRun is true', async () => {
+    vi.mocked(truelayer.getAccountTransactions).mockResolvedValueOnce([mockTransaction])
+
+    const result = await syncAccount({ ...baseOptions, configAccount: baseAccount, dryRun: true })
+
+    expect(result).toBe(false)
+    expect(actual.importTransactions).not.toHaveBeenCalled()
   })
 })

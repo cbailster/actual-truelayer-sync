@@ -1,16 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { syncConnection } from './connection'
+import axios from 'axios'
 import type { Connection, Config } from '../config/schema'
-
-vi.mock('../truelayer/truelayer')
-vi.mock('./accounts')
-vi.mock('./account')
-vi.mock('axios')
-
 import * as truelayer from '../truelayer/truelayer'
 import * as accounts from './accounts'
 import * as account from './account'
-import axios from 'axios'
+import { syncConnection } from './connection'
+
+vi.mock('axios')
+vi.mock('../truelayer/truelayer')
+vi.mock('./accounts')
+vi.mock('./account')
 
 const baseConnection: Connection = {
   name: 'My Bank',
@@ -71,12 +70,12 @@ describe('syncConnection', () => {
 
     expect(account.syncAccount).toHaveBeenCalledTimes(1)
     expect(account.syncAccount).toHaveBeenCalledWith(
-      expect.objectContaining({ trueLayerId: 'acc-1' }),
-      expect.any(Object),
-      'new-access',
-      expect.any(Map),
-      false,
-      false,
+      expect.objectContaining({
+        configAccount: expect.objectContaining({ trueLayerId: 'acc-1' }),
+        accessToken: 'new-access',
+        includeCategoryInNotes: false,
+        dryRun: false,
+      }),
     )
   })
 

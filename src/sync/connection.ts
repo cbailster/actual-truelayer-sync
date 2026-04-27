@@ -43,14 +43,14 @@ export async function syncConnection(
 
   const updatedAccounts: Account[] = []
   for (const configAccount of connection.accounts) {
-    const hadTransactions = await syncAccount(
+    const hadTransactions = await syncAccount({
       configAccount,
       connection,
       accessToken,
       trueLayerAccountsById,
-      config.includeCategoryInNotes,
+      includeCategoryInNotes: config.includeCategoryInNotes,
       dryRun,
-    )
+    })
     updatedAccounts.push(hadTransactions ? { ...configAccount, lastSyncDate: currentDate() } : configAccount)
   }
 

@@ -8,14 +8,23 @@ import { log, logError } from '../utils/logger'
 import type { Account, Connection } from '../config/schema'
 import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from '../truelayer/types'
 
-export async function syncAccount(
-  configAccount: Account,
-  connection: Connection,
-  accessToken: string,
-  trueLayerAccountsById: Map<string, TrueLayerAccount | TrueLayerCard>,
-  includeCategoryInNotes: boolean,
+interface SyncAccountOptions {
+  configAccount: Account
+  connection: Connection
+  accessToken: string
+  trueLayerAccountsById: Map<string, TrueLayerAccount | TrueLayerCard>
+  includeCategoryInNotes: boolean
+  dryRun?: boolean
+}
+
+export async function syncAccount({
+  configAccount,
+  connection,
+  accessToken,
+  trueLayerAccountsById,
+  includeCategoryInNotes,
   dryRun = false,
-): Promise<boolean> {
+}: SyncAccountOptions): Promise<boolean> {
   const prefix = [connection.name, configAccount.friendlyName]
   const fromDate = configAccount.lastSyncDate ? computeFromDate(configAccount.lastSyncDate) : undefined
 
