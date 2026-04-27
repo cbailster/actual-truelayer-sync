@@ -1,6 +1,6 @@
 import cron from 'node-cron'
 import { loadConfig, writeConfig } from './config/config'
-import { initActual, shutdownActual } from './actual'
+import { initActual, shutdownActual } from './actual/actual'
 import { syncConnection } from './sync/connection'
 import type { Config } from './config/schema'
 

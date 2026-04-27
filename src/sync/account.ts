@@ -1,4 +1,4 @@
-import { importTransactions } from '../actual'
+import { importTransactions } from '../actual/actual'
 import { getAccountTransactions, getCardTransactions } from '../truelayer'
 import { transformTransactions } from '../transform'
 import { computeFromDate } from '../utils/date'
@@ -25,7 +25,12 @@ export async function syncAccount(
     : await getAccountTransactions(accessToken, configAccount.trueLayerId, fromDate)
 
   const trueLayerAccount = trueLayerAccountsById.get(configAccount.trueLayerId)
-  const transactions = transformTransactions(trueLayerTransactions, configAccount, trueLayerAccount, includeCategoryInNotes)
+  const transactions = transformTransactions(
+    trueLayerTransactions,
+    configAccount,
+    trueLayerAccount,
+    includeCategoryInNotes,
+  )
 
   if (transactions.length > 0) {
     console.log(`${prefix} └ Found ${transactions.length} transactions.`)

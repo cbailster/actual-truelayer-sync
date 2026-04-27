@@ -6,7 +6,7 @@ import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from '../t
 vi.mock('../actual')
 vi.mock('../truelayer')
 
-import * as actual from '../actual'
+import * as actual from '../actual/actual'
 import * as truelayer from '../truelayer'
 
 const baseConnection: Connection = {
@@ -35,7 +35,7 @@ const mockTransaction: TrueLayerTransaction = {
   transaction_id: 'txn-1',
   timestamp: '2026-04-20T10:00:00Z',
   description: 'Coffee Shop',
-  amount: 3.50,
+  amount: 3.5,
   currency: 'GBP',
   transaction_type: 'DEBIT',
   transaction_category: 'PURCHASE',
@@ -72,7 +72,13 @@ describe('syncAccount', () => {
     vi.mocked(truelayer.getAccountTransactions).mockResolvedValueOnce([mockTransaction])
     vi.mocked(actual.importTransactions).mockResolvedValueOnce({ added: [], updated: [] })
 
-    await syncAccount({ ...baseAccount, lastSyncDate: '2026-04-24' }, baseConnection, 'access-token', accountsById, false)
+    await syncAccount(
+      { ...baseAccount, lastSyncDate: '2026-04-24' },
+      baseConnection,
+      'access-token',
+      accountsById,
+      false,
+    )
 
     expect(truelayer.getAccountTransactions).toHaveBeenCalledWith('access-token', 'acc-1', '2026-04-10')
   })
