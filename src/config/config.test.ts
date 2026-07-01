@@ -5,6 +5,7 @@ describe('AccountSchema', () => {
   const validAccount = {
     trueLayerId: 'tl-acc-1',
     actualId: 'actual-acc-1',
+    budgetId: 'budget-1',
     friendlyName: 'My Account',
   }
 
@@ -24,6 +25,11 @@ describe('AccountSchema', () => {
 
   it('rejects empty trueLayerId', () => {
     expect(AccountSchema.safeParse({ ...validAccount, trueLayerId: '' }).success).toBe(false)
+  })
+
+  it('rejects missing budgetId', () => {
+    const { budgetId: _, ...rest } = validAccount
+    expect(AccountSchema.safeParse(rest).success).toBe(false)
   })
 
   it('rejects missing actualId', () => {
@@ -58,7 +64,7 @@ describe('ConnectionSchema', () => {
   it('accepts a connection with accounts', () => {
     const result = ConnectionSchema.safeParse({
       ...validConnection,
-      accounts: [{ trueLayerId: 'tl-1', actualId: 'a-1', friendlyName: 'Acc' }],
+      accounts: [{ trueLayerId: 'tl-1', actualId: 'a-1', budgetId: 'b-1', friendlyName: 'Acc' }],
     })
     expect(result.success).toBe(true)
   })
