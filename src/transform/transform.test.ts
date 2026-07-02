@@ -1,15 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { shouldFlipAmount, toActualAmount, transformTransaction, transformTransactions } from './transform'
-import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from '../truelayer/types'
+import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransactionRawType } from '../truelayer/types'
 import { Account } from '../config/schema'
 
 const baseAccount: Account = {
   trueLayerId: 'tl-acc-1',
   actualId: 'actual-acc-1',
+  budgetId: 'budget-1',
   friendlyName: 'My Account',
 }
 
-const baseTransaction: TrueLayerTransaction = {
+const baseTransaction: TrueLayerTransactionRawType = {
   transaction_id: 'txn-1',
   timestamp: '2026-04-24T10:00:00Z',
   description: 'Coffee Shop',

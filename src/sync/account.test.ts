@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { Account, Connection } from '../config/schema'
-import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from '../truelayer/types'
+import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransactionRawType } from '../truelayer/types'
 import * as actual from '../actual/actual'
 import * as truelayer from '../truelayer/truelayer'
 import { syncAccount } from './account'
@@ -31,7 +31,7 @@ const mockTrueLayerAccount: TrueLayerAccount = {
   provider: { provider_id: 'first-direct' },
 }
 
-const mockTransaction: TrueLayerTransaction = {
+const mockTransaction: TrueLayerTransactionRawType = {
   transaction_id: 'txn-1',
   timestamp: '2026-04-20T10:00:00Z',
   description: 'Coffee Shop',

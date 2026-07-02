@@ -6,7 +6,7 @@ import { resolveIsCard } from '../utils/account'
 import { buildImportSummary } from '../utils/logging'
 import { log, logError } from '../utils/logger'
 import type { Account, Connection } from '../config/schema'
-import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from '../truelayer/types'
+import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransactionRawType } from '../truelayer/types'
 
 interface SyncAccountOptions {
   configAccount: Account
@@ -34,7 +34,7 @@ export async function syncAccount({
 
   log(prefix, `Fetching transactions${fromDate ? ` since ${fromDate}` : ''}...`)
 
-  let trueLayerTransactions: TrueLayerTransaction[]
+  let trueLayerTransactions: TrueLayerTransactionRawType[]
   try {
     const isCard = resolveIsCard(configAccount, connection)
     trueLayerTransactions = isCard

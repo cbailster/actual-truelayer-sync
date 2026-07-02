@@ -51,19 +51,9 @@ export type TrueLayerTokenResponse = {
   scope?: string
 }
 
-type TrueLayerCurrency = 'EUR' | 'GBP' | 'USD' | 'AUD'
+export type TrueLayerCurrency = 'EUR' | 'GBP' | 'USD' | 'AUD'
 
-export type TrueLayerTransaction = {
-  transaction_id: string
-  normalised_provider_transaction_id?: string
-  provider_transaction_id?: string
-  timestamp: string
-  description: string
-  amount: number
-  currency: TrueLayerCurrency
-  transaction_type: 'DEBIT' | 'CREDIT'
-  transaction_category:
-    | 'ATM'
+export type TrueLayerTransactionCategory = 'ATM'
     | 'BILL_PAYMENT'
     | 'CASH'
     | 'CASHBACK'
@@ -80,6 +70,17 @@ export type TrueLayerTransaction = {
     | 'TRANSFER'
     | 'DEBIT'
     | 'UNKNOWN'
+
+export type TrueLayerTransactionRawType = {
+  transaction_id: string
+  normalised_provider_transaction_id?: string
+  provider_transaction_id?: string
+  timestamp: string
+  description: string
+  amount: number
+  currency: TrueLayerCurrency
+  transaction_type: 'DEBIT' | 'CREDIT'
+  transaction_category: TrueLayerTransactionCategory
   transaction_classification: string[]
   merchant_name?: string
   running_balance?: {

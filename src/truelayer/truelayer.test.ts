@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import axios from 'axios'
 import { refreshToken, listAccounts, listCards, getAccountTransactions, getCardTransactions } from './truelayer'
-import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransaction } from './types'
+import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransactionRawType } from './types'
 
 vi.mock('axios')
 const mockedAxios = vi.mocked(axios, true)
@@ -28,7 +28,7 @@ const mockCard: TrueLayerCard = {
   provider: { provider_id: 'ms' },
 }
 
-const mockTransaction: TrueLayerTransaction = {
+const mockTransaction: TrueLayerTransactionRawType = {
   transaction_id: 'txn-1',
   timestamp: '2026-04-24T10:00:00Z',
   description: 'Coffee Shop',

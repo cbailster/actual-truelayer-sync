@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { TrueLayerAccount, TrueLayerCard, TrueLayerMe, TrueLayerTransaction, TrueLayerTokenResponse } from './types'
+import type { TrueLayerAccount, TrueLayerCard, TrueLayerMe, TrueLayerTransactionRawType, TrueLayerTokenResponse } from './types'
 import { NETWORK_TIMEOUT } from '../utils/network'
 
 const BASE_URL = 'https://api.truelayer.com/data/v1'
@@ -86,9 +86,9 @@ export async function getAccountTransactions(
   accessToken: string,
   accountId: string,
   from?: string,
-): Promise<TrueLayerTransaction[]> {
+): Promise<TrueLayerTransactionRawType[]> {
   const params = from ? { from } : {}
-  const res = await axios.get<{ results: TrueLayerTransaction[] }>(`${BASE_URL}/accounts/${accountId}/transactions`, {
+  const res = await axios.get<{ results: TrueLayerTransactionRawType[] }>(`${BASE_URL}/accounts/${accountId}/transactions`, {
     headers: { Authorization: `Bearer ${accessToken}`, timeout: NETWORK_TIMEOUT },
     params,
   })
@@ -99,9 +99,9 @@ export async function getCardTransactions(
   accessToken: string,
   cardId: string,
   from?: string,
-): Promise<TrueLayerTransaction[]> {
+): Promise<TrueLayerTransactionRawType[]> {
   const params = from ? { from } : {}
-  const res = await axios.get<{ results: TrueLayerTransaction[] }>(`${BASE_URL}/cards/${cardId}/transactions`, {
+  const res = await axios.get<{ results: TrueLayerTransactionRawType[] }>(`${BASE_URL}/cards/${cardId}/transactions`, {
     headers: { Authorization: `Bearer ${accessToken}`, timeout: NETWORK_TIMEOUT },
     params,
   })

@@ -1,4 +1,4 @@
-import type { TrueLayerTransaction, TrueLayerAccount, TrueLayerCard } from '../truelayer/types'
+import type { TrueLayerTransactionRawType, TrueLayerAccount, TrueLayerCard } from '../truelayer/types'
 
 import { Account } from '../config/schema'
 
@@ -34,7 +34,7 @@ export function toActualAmount(amount: number, shouldFlip: boolean): number {
 }
 
 export function transformTransaction(
-  trueLayerTransaction: TrueLayerTransaction,
+  trueLayerTransaction: TrueLayerTransactionRawType,
   configAccount: Account,
   trueLayerAccount: TrueLayerAccount | TrueLayerCard | undefined,
   includeCategoryInNotes: boolean,
@@ -54,7 +54,7 @@ export function transformTransaction(
 }
 
 export function transformTransactions(
-  trueLayerTransactions: TrueLayerTransaction[],
+  trueLayerTransactions: TrueLayerTransactionRawType[],
   configAccount: Account,
   trueLayerAccount: TrueLayerAccount | TrueLayerCard | undefined,
   includeCategoryInNotes: boolean,
