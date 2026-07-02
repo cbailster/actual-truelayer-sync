@@ -4,6 +4,7 @@ import type { TrueLayerAccount, TrueLayerCard, TrueLayerTransactionRawType } fro
 import * as actual from '../actual/actual'
 import * as truelayer from '../truelayer/truelayer'
 import { syncAccount } from './account'
+import { TrueLayerTransaction } from '../truelayer/transaction'
 
 vi.mock('../actual/actual')
 vi.mock('../truelayer/truelayer')
@@ -31,7 +32,7 @@ const mockTrueLayerAccount: TrueLayerAccount = {
   provider: { provider_id: 'first-direct' },
 }
 
-const mockTransaction: TrueLayerTransactionRawType = {
+const mockTransactionRaw: TrueLayerTransactionRawType = {
   transaction_id: 'txn-1',
   timestamp: '2026-04-20T10:00:00Z',
   description: 'Coffee Shop',
@@ -41,6 +42,8 @@ const mockTransaction: TrueLayerTransactionRawType = {
   transaction_category: 'PURCHASE',
   transaction_classification: [],
 }
+
+const mockTransaction:TrueLayerTransaction =  new TrueLayerTransaction(mockTransactionRaw)
 
 const emptyAccountsById = new Map<string, TrueLayerAccount | TrueLayerCard>()
 const trueLayerAccountsById = new Map<string, TrueLayerAccount | TrueLayerCard>([['acc-1', mockTrueLayerAccount]])

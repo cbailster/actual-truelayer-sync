@@ -8,6 +8,8 @@ export const AccountSchema = z.object({
   friendlyName: z.string().min(1),
   isCard: z.boolean().optional(),
   flip: z.boolean().optional(),
+  descriptionField: z.string().optional(),
+  notesField: z.string().optional(),
 })
 
 export const ConnectionSchema = z.object({
