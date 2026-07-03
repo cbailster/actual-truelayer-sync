@@ -1,57 +1,7 @@
 import type { TrueLayerTransactionRawType, TrueLayerAccount, TrueLayerCard } from '../truelayer/types'
 
 import { Account } from '../config/schema'
-
-export interface ActualTransaction {
-  account: string
-  date: string
-  amount: number
-  payee_name: string
-  imported_id: string
-  notes?: string
-  cleared: boolean
-}
-
-export function shouldFlipAmount(
-  configAccount: Account,
-  trueLayerAccount: TrueLayerAccount | TrueLayerCard | undefined,
-): boolean {
-  // Determine flip: explicit config takes precedence, then infer from card_type === 'CREDIT'
-  if (configAccount.flip !== undefined) {
-    return configAccount.flip
-  }
-
-  if (trueLayerAccount !== undefined && 'card_type' in trueLayerAccount && trueLayerAccount.card_type === 'CREDIT') {
-    return true
-  }
-
-  return false
-}
-
-export function toActualAmount(amount: number, shouldFlip: boolean): number {
-  const pence = Math.round(amount * 100)
-  return pence === 0 ? 0 : pence * (shouldFlip ? -1 : 1)
-}
-
-export function transformTransaction(
-  trueLayerTransaction: TrueLayerTransactionRawType,
-  configAccount: Account,
-  trueLayerAccount: TrueLayerAccount | TrueLayerCard | undefined,
-  includeCategoryInNotes: boolean,
-): ActualTransaction {
-  return {
-    account: configAccount.actualId,
-    date: trueLayerTransaction.timestamp.split('T')[0]!,
-    amount: toActualAmount(trueLayerTransaction.amount, shouldFlipAmount(configAccount, trueLayerAccount)),
-    payee_name: trueLayerTransaction.description.replace(/,?\s*Transaction Date:\s*\d{4}-\d{2}-\d{2}/i, '').trim(),
-    imported_id: trueLayerTransaction.transaction_id,
-    notes:
-      includeCategoryInNotes && trueLayerTransaction.transaction_category !== 'UNKNOWN'
-        ? trueLayerTransaction.transaction_category
-        : undefined,
-    cleared: true,
-  }
-}
+import { TrueLayerTransaction, ActualTransaction } from '../truelayer/transaction'
 
 export function transformTransactions(
   trueLayerTransactions: TrueLayerTransactionRawType[],
@@ -59,7 +9,13 @@ export function transformTransactions(
   trueLayerAccount: TrueLayerAccount | TrueLayerCard | undefined,
   includeCategoryInNotes: boolean,
 ): ActualTransaction[] {
-  return trueLayerTransactions.map((t) =>
-    transformTransaction(t, configAccount, trueLayerAccount, includeCategoryInNotes),
-  )
+  if (includeCategoryInNotes) {
+    configAccount.notesField = 'transaction_category'
+  }
+  return trueLayerTransactions.map((t) => {
+    const transaction = new TrueLayerTransaction(t)
+    transaction.config = configAccount
+    transaction.trueLayerAccount = trueLayerAccount
+    return transaction.toActualTransaction()
+  })
 }
