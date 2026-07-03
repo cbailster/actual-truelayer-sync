@@ -17,11 +17,11 @@ export async function initActual(options: InitOptions): Promise<void> {
 
 export async function selectBudget(budgetId: string): Promise<void> {
   const budgets = await actual.getBudgets()
-  const budget = budgets.find((b) => b.id === budgetId)
+  const budget = budgets.find((b) => b.groupId === budgetId)
   if (!budget) {
     throw new Error(`Budget with ID ${budgetId} not found.`)
   }
-  await actual.downloadBudget(budget.id)
+  await actual.downloadBudget(budgetId)
 }
 
 export async function importTransactions(
