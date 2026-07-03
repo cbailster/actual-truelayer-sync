@@ -108,46 +108,39 @@ export class TrueLayerTransaction {
   private attributeFromDefString(defString: string): string | undefined {
     const parts = defString.split('.')
     let current: any = this
+    let parent: any = this
     for (const part of parts) {
       if (current && typeof current === 'object' && part in current) {
+        parent = current
         current = current[part]
       } else {
         return undefined
       }
     }
-    return typeof current === 'string' ? current : undefined
+
+    if (typeof current === 'function') {
+      current = current.call(parent)
+    }
+
+    return current !== undefined && current !== null ? String(current) : undefined
   }
 
   private hasAttribute(defString: string): boolean {
     return this.attributeFromDefString(defString) !== undefined
   }
 
-  private parseFieldDescription(description: string): string {
+  private parseFieldDescription(fieldDescription: string): string {
     // If the description is a bare attribute path, return the value of that attribute
-    if (this.hasAttribute(description)) {
-      const value = this.attributeFromDefString(description)
-      return value !== undefined ? value : description
+    if (!fieldDescription.includes('{{') && this.hasAttribute(fieldDescription)) {
+      const value = this.attributeFromDefString(fieldDescription)
+      return value !== undefined ? value : fieldDescription
     }
 
-    // Test if the description is a template string with placeholders like {{attribute.path}}
     const templateRegex = /{{\s*([^}]+)\s*}}/g
-    let match: RegExpExecArray | null
-    let result = description
-
-    // If the description is a template string, replace placeholders with attribute values
-    if (!templateRegex.test(description)) {
-      return description
-    } else {
-      // Replace each placeholder with the corresponding attribute value
-      while ((match = templateRegex.exec(description)) !== null) {
-        const attributePath = match[1].trim()
-        const attributeValue = this.attributeFromDefString(attributePath)
-        if (attributeValue !== undefined) {
-          result = result.replace(match[0], attributeValue)
-        }
-      }
-
-      return result
-    }
+    return fieldDescription.replaceAll(templateRegex, (match, attributePath) => {
+      const trimmedPath = attributePath.trim()
+      const attributeValue = this.attributeFromDefString(trimmedPath)
+      return attributeValue ?? match
+    })
   }
 }
