@@ -100,7 +100,7 @@ export class TrueLayerTransaction {
       amount: this.getAmountInPence(),
       payee_name: this.config.descriptionField ? this.parseFieldDescription(this.config.descriptionField) : this.cleanDescription(),
       imported_id: this.transaction_id,
-      notes: this.config.notesField ? this.parseFieldDescription(this.config.notesField) : this.cleanCategory(),
+      notes: this.config.notesField ? this.parseFieldDescription(this.config.notesField) : "",
       cleared: true,
     }
   }

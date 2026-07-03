@@ -149,13 +149,28 @@ Defines which accounts to sync and how. See `config.example.json` for a full exa
 
 **Account fields:**
 
-| Field          | Required | Description                                                                                                         |
-| -------------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
-| `trueLayerId`  | Yes      | TrueLayer `account_id` for this account                                                                             |
-| `actualId`     | Yes      | Actual Budget account ID                                                                                            |
-| `friendlyName` | Yes      | Label used in logs                                                                                                  |
-| `flip`         | No       | Inverts transaction amounts. Credit card accounts have amounts flipped automatically; use `flip: false` to override |
-| `isCard`       | No       | Overrides the connection-level `isCard` for this specific account                                                   |
+| Field              | Required | Description                                                                                                         |
+| ------------------ | -------- | ------------------------------------------------------------------------------------------------------------------- |
+| `trueLayerId`      | Yes      | TrueLayer `account_id` for this account                                                                             |
+| `actualId`         | Yes      | Actual Budget account ID                                                                                            |
+| `budgetId`         | No       | Acual Budget budget ID - if not provided it will use ACTUAL_SYNC_ID from ENV                                        |
+| `friendlyName`     | Yes      | Label used in logs                                                                                                  |
+| `flip`             | No       | Inverts transaction amounts. Credit card accounts have amounts flipped automatically; use `flip: false` to override |
+| `isCard`           | No       | Overrides the connection-level `isCard` for this specific account                                                   |
+| `descriptionField` | No       | Sets the truelayer field used to populate the description (payee_name) in Actual Budget. Defaults to description    |
+| `notesField`       | No       | Sets the truelayer field used to populate the notes in Actual Budget. Defaults to ""                                |
+
+**Description and Notes fields:**
+
+You can provide either a string that will resolve to an attribute of the transaction, or a {{moustache}} style string that will be interpolated with the attributes of the transaction.
+```
+"description" --> "Starbucks coffee" - returns the description attribute
+"{{description}}. Category {{transaction_category}} #truelayer" --> "Starbucks. Category DEBIT #truelayer" - returns an interpolated string using available attributes. If an attribute doesn't exist the {{variable}} will remain uninterpolated.
+```
+A full list of available attributes is availabe in src/truelayer/types.ts.
+
+---
+
 
 ### `state.json`
 

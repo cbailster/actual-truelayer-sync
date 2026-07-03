@@ -9,18 +9,27 @@
         {
           "trueLayerId": "[TRUELAYER_ACCOUNT_ID]",
           "actualId": "[ACTUALBUDGET_ACCOUNT_ID]",
-          "friendlyName": "My Current Account"
+          "budgetId": "[ACTUALBUDGET_BUDGET_ID]",
+          "friendlyName": "My Current Account",
+          "notesField": "{{description}} - {{provider_category}}",
+          "descriptionField": "{{description}}"
         },
         {
           "trueLayerId": "[TRUELAYER_ACCOUNT_ID]",
           "actualId": "[ACTUALBUDGET_ACCOUNT_ID]",
+          "budgetId": "[ACTUALBUDGET_BUDGET_ID]",
           "friendlyName": "My Joint Account",
-          "flip": true
+          "flip": true,
+          "notesField": "{{description}} - {{provider_category}}",
+          "descriptionField": "{{description}}"
         },
         {
           "trueLayerId": "[TRUELAYER_ACCOUNT_ID]",
           "actualId": "[ACTUALBUDGET_ACCOUNT_ID]",
-          "friendlyName": "My Savings Account"
+          "budgetId": "[ACTUALBUDGET_BUDGET_ID]",
+          "friendlyName": "My Savings Account",
+          "notesField": "{{description}} - {{provider_category}}",
+          "descriptionField": "{{description}}"
         }
       ]
     },
@@ -31,6 +40,7 @@
         {
           "trueLayerId": "[TRUELAYER_ACCOUNT_ID]",
           "actualId": "[ACTUALBUDGET_ACCOUNT_ID]",
+          "budgetId": "[ACTUALBUDGET_BUDGET_ID]",
           "friendlyName": "My Credit Card"
         }
       ]
@@ -45,11 +55,13 @@
         {
           "trueLayerId": "[TRUELAYER_ACCOUNT_ID]",
           "actualId": "[ACTUALBUDGET_ACCOUNT_ID]",
+          "budgetId": "[ACTUALBUDGET_BUDGET_ID]",
           "friendlyName": "My Current Account"
         },
         {
           "trueLayerId": "[TRUELAYER_ACCOUNT_ID]",
           "actualId": "[ACTUALBUDGET_ACCOUNT_ID]",
+          "budgetId": "[ACTUALBUDGET_BUDGET_ID]",
           "friendlyName": "My Credit Card",
           "isCard": true
         }
