@@ -17,5 +17,12 @@ export function transformTransactions(
     transaction.config = configAccount
     transaction.trueLayerAccount = trueLayerAccount
     return transaction.toActualTransaction()
+  }).filter((t) => {
+    if (configAccount.minDate) {
+      const minDate = new Date(configAccount.minDate)
+      const transactionDate = new Date(t.date)
+      return transactionDate >= minDate
+    }
+    return true
   })
 }

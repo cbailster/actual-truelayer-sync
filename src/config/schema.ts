@@ -10,6 +10,7 @@ export const AccountSchema = z.object({
   flip: z.boolean().optional(),
   descriptionField: z.string().optional(),
   notesField: z.string().optional(),
+  minDate: z.iso.date().optional(),
 })
 
 export const ConnectionSchema = z.object({

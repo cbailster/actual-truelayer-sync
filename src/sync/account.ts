@@ -59,7 +59,7 @@ export async function syncAccount({
   }
 
   log(prefix, `└ Found ${transactions.length} transactions.`)
-  const dates = trueLayerTransactions.map((t) => t.timestamp).sort()
+  const dates = transactions.map((t) => t.date).sort()
   const from = dates[0].slice(0, 10)
   const to = dates[dates.length - 1].slice(0, 10)
 
