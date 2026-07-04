@@ -39,6 +39,10 @@ export async function getAccounts(): Promise<Array<{ id: string; name: string; c
   return actual.getAccounts()
 }
 
+export async function getBudgets(): Promise<Array<{ groupId: string; name: string }>> {
+  return (await actual.getBudgets()).map((b) => ({ groupId: b.groupId, name: b.name }))
+}
+
 export async function shutdownActual(): Promise<void> {
   await actual.shutdown()
 }
