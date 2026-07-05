@@ -159,6 +159,7 @@ Defines which accounts to sync and how. See `config.example.json` for a full exa
 | `isCard`           | No       | Overrides the connection-level `isCard` for this specific account                                                   |
 | `descriptionField` | No       | Sets the truelayer field used to populate the description (payee_name) in Actual Budget. Defaults to description    |
 | `notesField`       | No       | Sets the truelayer field used to populate the notes in Actual Budget. Defaults to ""                                |
+| `minDate`          | No       | Ignore any transactions returned by TrueLayer that are before this date (YYYY-MM-DD)                                |
 
 **Description and Notes fields:**
 
