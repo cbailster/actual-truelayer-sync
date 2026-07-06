@@ -4,6 +4,6 @@
  *
  * Starts the web management server.
  */
-import { startServer } from './web'
+import { startServer } from './web/index'
 
-startServer()
+void startServer()
