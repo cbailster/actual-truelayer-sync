@@ -41,8 +41,15 @@ export const ConnectionDetails = ({ connection }: { connection: Connection }) =>
       <div>
         <strong>Consent Status:</strong> {connection.consentStatus ?? 'Unknown'}
       </div>
-      <div>
-        <strong>Expires in:</strong> {connection.consentExpires ? dayjs(connection.consentExpires).fromNow() : 'Unknown'}
+      <div class="flex items-center gap-1">
+        <strong>Expires in:</strong>
+        {connection.consentExpires ? (
+          <span class="tooltip" data-tip={dayjs(connection.consentExpires).format('DD MMM YYYY')}>
+            {dayjs(connection.consentExpires).fromNow()}
+          </span>
+        ) : (
+          'Unknown'
+        )}
       </div>
       <div>
         <strong>Created:</strong> {connection.consentCreated ? dayjs(connection.consentCreated).format('DD MMM YYYY') : 'Unknown'}
