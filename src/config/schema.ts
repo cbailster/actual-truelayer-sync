@@ -20,7 +20,7 @@ export const ConnectionSchema = z.object({
   consentCreated: z.iso.datetime().optional(),
   consentExpires: z.iso.datetime().optional(),
   lastRefreshed: z.iso.datetime().optional(),
-  logoUri: z.string().url().optional(),
+  providerID: z.string().optional(),
   accounts: z.array(AccountSchema),
 })
 

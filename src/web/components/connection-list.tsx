@@ -12,6 +12,9 @@ export const ConnectionList = ({ connections }: { connections: Connection[] }) =
         <div class="collapse collapse-arrow bg-base-200" key={connection.name}>
           <input type="checkbox" />
           <div class="collapse-title text-lg font-medium flex items-center gap-4">
+            { connection.providerID && (
+              <img src={`/logo/${connection.name}`} alt={`${connection.name} logo`} class="w-8 h-8 rounded-full" />
+            )}
             <span>{connection.name}</span>
           </div>
           <div class="collapse-content">
