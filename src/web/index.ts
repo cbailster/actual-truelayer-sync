@@ -7,6 +7,7 @@ import Fastify from 'fastify'
 import fastifyStatic from '@fastify/static'
 import { loadConfig, writeConfig, writeState } from '../config/config'
 import { homePage } from './home'
+import { RedirectPage } from './redirect-page'
 import { getMe, refreshToken } from '../truelayer/truelayer'
 import { ConnectionDetails } from './components/connection-list'
 import { Config } from '../config/schema'
@@ -58,6 +59,17 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
     } catch (err) {
       fastify.log.error(err, 'Error loading configuration for web UI')
       reply.status(500).send('Error loading configuration. Check server logs.')
+    }
+  })
+
+  // Page to handle the redirect from TrueLayer
+  fastify.get('/callback', async (request, reply) => {
+    try {
+      const content = RedirectPage()
+      reply.type('text/html').send(content.toString())
+    } catch (err) {
+      fastify.log.error(err, 'Error rendering callback page')
+      reply.status(500).send('Error rendering callback page. Check server logs.')
     }
   })
 
