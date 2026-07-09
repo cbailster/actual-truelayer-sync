@@ -16,6 +16,11 @@ export const AccountSchema = z.object({
 export const ConnectionSchema = z.object({
   name: z.string().min(1),
   isCard: z.boolean().optional(),
+  consentStatus: z.string().optional(),
+  consentCreated: z.iso.datetime().optional(),
+  consentExpires: z.iso.datetime().optional(),
+  lastRefreshed: z.iso.datetime().optional(),
+  logoUri: z.string().url().optional(),
   accounts: z.array(AccountSchema),
 })
 

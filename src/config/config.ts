@@ -72,3 +72,14 @@ export async function writeState(config: Config): Promise<void> {
   await writeJSON(STATE_PATH, config.state)
   log(['Config'], 'State saved.')
 }
+
+export async function writeConfig(config: Config): Promise<void> {
+  const { env, state, ...fileConfig } = config
+  const result = FileConfigSchema.safeParse(fileConfig)
+  if (!result.success) {
+    logError(['Config'], 'Attempted to write invalid config file, operation aborted.')
+    return
+  }
+  await writeJSON(CONFIG_PATH, result.data)
+  log(['Config'], 'Config saved.')
+}
