@@ -2,10 +2,11 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type { Connection } from '../../config/schema'
 import { AccountDetail } from './account'
+import { ActualClient } from '../actual-client'
 
 dayjs.extend(relativeTime)
 
-export const ConnectionList = ({ connections }: { connections: Connection[] }) => {
+export const ConnectionList = ({ connections, actualClient }: { connections: Connection[], actualClient: ActualClient }) => {
   return (
     <div class="my-4 mx-8 space-y-2">
       {connections.map((connection) => (
@@ -23,7 +24,7 @@ export const ConnectionList = ({ connections }: { connections: Connection[] }) =
             <div class="space-y-2 pt-2">
               <h3 class="text-md font-semibold mb-2">Accounts</h3>
               {connection.accounts.map((account) => (
-                <AccountDetail account={account} key={account.trueLayerId} />
+                <AccountDetail account={account} actualAccount={actualClient.accountWithID(account.actualId)} key={account.trueLayerId} />
               ))}
             </div>
           </div>

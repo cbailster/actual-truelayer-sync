@@ -10,12 +10,13 @@ import { homePage } from './home'
 import { getMe, refreshToken } from '../truelayer/truelayer'
 import { ConnectionDetails } from './components/connection-list'
 import { Config } from '../config/schema'
-import { log } from 'node:console'
+import { ActualClient } from './actual-client'
 
 // Extend FastifyInstance with a decorator for our config
 declare module 'fastify' {
   interface FastifyInstance {
     config: Config
+    actualClient: ActualClient
   }
 }
 
@@ -34,13 +35,25 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
   fastify.decorate('config', {} as Config)
   await reloadConfig(fastify)
 
+  // Decorate fastify with the ActualClient instance
+  const actualClient = new ActualClient(fastify.config.env)
+  fastify.decorate('actualClient', actualClient)
+
+  try {
+    await actualClient.connect()
+    await actualClient.getAccounts() // Load accounts on startup
+  } catch (err) {
+    fastify.log.error(err, 'Failed to connect to Actual Budget during startup.')
+  }
+
+
   // Home page route
   fastify.get('/', async (request, reply) => {
     try {
       // Reload config on each page load to reflect any background sync changes
       await reloadConfig(fastify)
       const config = fastify.config
-      const content = homePage(config)
+      const content = homePage(config, fastify.actualClient.status, fastify.actualClient)
       reply.type('text/html').send(content.toString())
     } catch (err) {
       fastify.log.error(err, 'Error loading configuration for web UI')
@@ -58,14 +71,15 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
         return reply.status(404).send({ error: 'Connection not found in state.' })
       }
 
-      const { TRUELAYER_CLIENT_ID, TRUELAYER_CLIENT_SECRET } = config.env
       const { access_token, refresh_token } = await refreshToken(
-        TRUELAYER_CLIENT_ID,
-        TRUELAYER_CLIENT_SECRET,
+        config.env.TRUELAYER_CLIENT_ID,
+        config.env.TRUELAYER_CLIENT_SECRET,
         connectionState.refreshToken,
       )
-      connectionState.refreshToken = refresh_token
-      await writeState(config)
+      if (refresh_token != connectionState.refreshToken) {
+        connectionState.refreshToken = refresh_token
+        await writeState(config)
+      }
       const me = await getMe(access_token)
 
       // Update config with new consent info
@@ -79,6 +93,7 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
         await writeConfig(config)
         await reloadConfig(fastify) // Reload config into decorator
       }
+      
       // Re-render the details component with the updated data
       const updatedContent = ConnectionDetails({ connection: connectionConfig! })
       reply.type('text/html').send(updatedContent.toString())
