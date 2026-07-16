@@ -4,10 +4,10 @@ export type TrueLayerMe = {
   consent_status: string
   consent_created_at: string
   consent_expires_at: string
+  scopes: string[]
   provider: {
     display_name: string
     provider_id: string
-    logo_uri?: string
   }
 }
 
