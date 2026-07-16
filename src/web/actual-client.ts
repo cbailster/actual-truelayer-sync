@@ -71,14 +71,21 @@ export class ActualClient {
 
   async getAccounts() {
     await this.connect()
+    this.accounts = []
+    let budgetIds:string[] = []
     const budgets = await actualGetBudgets()
     for (const budget of budgets) {
+      if (budgetIds.includes(budget.groupId)) {
+        continue
+      }
+      budgetIds.push(budget.groupId)
       await selectBudget(budget.groupId)
-      this.accounts = (await actualGetAccounts()).map((account) => ({
+      const acList = (await actualGetAccounts()).map((account) => ({
         ...account,
         budgetId: budget.groupId,
         budgetName: budget.name,
       }))
+      this.accounts.push(...acList)
     }
   }
 
