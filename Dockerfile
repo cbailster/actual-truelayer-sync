@@ -13,4 +13,4 @@ COPY package.json ./
 COPY --from=builder /build/node_modules ./node_modules
 COPY --from=builder /build/dist ./dist
 USER node
-CMD ["node", "dist/sync.js"]
+CMD ["npm", "run", "server"]

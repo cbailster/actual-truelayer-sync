@@ -9,6 +9,7 @@
     "watch:css": "npx @tailwindcss/cli -i ./src/web/input.css -o ./public/styles.css --watch",
     "start": "node dist/sync.js",
     "setup": "tsx scripts/setup.ts",
+    "server": "node dist/server.js",
     "dev": "tsx --env-file=.env src/sync.ts",
     "dev:dry-run": "tsx --env-file=.env src/sync.ts --dry-run",
     "dev:setup": "tsx --env-file=.env scripts/setup.ts",
