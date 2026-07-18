@@ -14,7 +14,7 @@ WORKDIR /app
 COPY package.json ./
 COPY --from=builder /build/node_modules ./node_modules
 COPY --from=builder /build/dist ./dist
-COPY --from=builder /build/public ./public
+COPY --from=builder --chown=node:node /build/public ./public
 RUN ln -s /app/node_modules/htmx.org/dist/htmx.min.js public/htmx.min.js
 USER node
 CMD ["npm", "run", "server"]
