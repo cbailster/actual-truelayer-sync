@@ -12,5 +12,6 @@ WORKDIR /app
 COPY package.json ./
 COPY --from=builder /build/node_modules ./node_modules
 COPY --from=builder /build/dist ./dist
+RUN mkdir public
 USER node
 CMD ["npm", "run", "server"]
