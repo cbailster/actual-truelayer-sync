@@ -187,6 +187,7 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
     await writeConfig(fastify.config)
     await updateStateJson(fastify.config, connection.name, tokens.refresh_token)
     await reloadConfig(fastify)
+    await request.session.destroy()
     return reply.redirect('/')
   })
 
