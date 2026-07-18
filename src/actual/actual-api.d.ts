@@ -18,6 +18,7 @@ declare module '@actual-app/api' {
       }[],
     ): Promise<{ errors: unknown[]; added: string[]; updated: string[] }>
     shutdown(): Promise<void>
+    getBudgets(): Promise<Array<{ groupId: string; name: string }>>
   }
   export default actual
 }

@@ -17,7 +17,7 @@ export async function initActual(options: InitOptions): Promise<void> {
 
 export async function selectBudget(budgetId: string): Promise<void> {
   const budgets = await actual.getBudgets()
-  const budget = budgets.find((b) => b.groupId === budgetId)
+  const budget = budgets.find((b: { groupId: string }) => b.groupId === budgetId)
   if (!budget) {
     throw new Error(`Budget with ID ${budgetId} not found.`)
   }
@@ -40,7 +40,7 @@ export async function getAccounts(): Promise<Array<{ id: string; name: string; c
 }
 
 export async function getBudgets(): Promise<Array<{ groupId: string; name: string }>> {
-  return (await actual.getBudgets()).map((b) => ({ groupId: b.groupId, name: b.name }))
+  return (await actual.getBudgets()).map((b: { groupId: string; name: string }) => ({ groupId: b.groupId, name: b.name }))
 }
 
 export async function shutdownActual(): Promise<void> {

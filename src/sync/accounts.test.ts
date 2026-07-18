@@ -11,7 +11,12 @@ vi.mock('../utils/logger')
 
 const baseConnection: Connection = {
   name: 'My Bank',
-  accounts: [{ trueLayerId: 'acc-1', actualId: 'a-1', friendlyName: 'Current Account' }],
+  accounts: [{ 
+    trueLayerId: 'acc-1', 
+    budgetId: 'budget-1', 
+    actualId: 'a-1', 
+    friendlyName: 'Current Account' 
+  }],
 }
 
 const mockAccount: TrueLayerAccount = {

@@ -5,6 +5,7 @@ import { Account, Connection } from '../config/schema'
 const baseAccount: Account = {
   trueLayerId: 'tl-1',
   actualId: 'a-1',
+  budgetId: 'b-1',
   friendlyName: 'My Account',
 }
 
