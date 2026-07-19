@@ -24,7 +24,12 @@ export const ConnectionList = ({ connections, actualClient }: { connections: Con
             <div class="space-y-2 pt-2">
               <h3 class="text-md font-semibold mb-2">Accounts</h3>
               {connection.accounts.map((account) => (
-                <AccountDetail account={account} actualAccount={actualClient.accountWithID(account.actualId)} key={account.trueLayerId} />
+                <AccountDetail
+                  connectionName={connection.name}
+                  account={account}
+                  actualAccount={actualClient.accountWithID(account.actualId)}
+                  key={account.trueLayerId}
+                />
               ))}
             </div>
           </div>

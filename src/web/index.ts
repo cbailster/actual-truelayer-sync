@@ -12,6 +12,7 @@ import fastifyFormbody from '@fastify/formbody'
 import { homePage } from './home'
 import { MapAccountPage } from './map-accounts'
 import { ConnectionDetails } from './components/connection-list'
+import { AccountDetail } from './components/account'
 
 import { ActualClient } from './actual-client'
 import { mapToConnection } from './utils/connection'
@@ -271,6 +272,41 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
       fastify.log.error(err, 'Error loading configuration for web UI')
       // Return a user-friendly error message to be displayed in the UI
       reply.status(500).send(`<div class="text-error">Error refreshing connection: ${err instanceof Error ? err.message : 'Unknown error'}</div>`)
+    }
+  })
+
+  fastify.post('/account/:connectionName/:trueLayerId', async (request, reply) => {
+    try {
+      const { connectionName, trueLayerId } = request.params as { connectionName: string; trueLayerId: string }
+      const body = request.body as { descriptionField?: string; notesField?: string; minDate?: string }
+
+      const config = fastify.config
+      const connection = config.connections.find((c) => c.name === connectionName)
+      if (!connection) {
+        return reply.status(404).send('Connection not found')
+      }
+
+      const account = connection.accounts.find((a) => a.trueLayerId === trueLayerId)
+      if (!account) {
+        return reply.status(404).send('Account not found')
+      }
+
+      // Update account details
+      account.descriptionField = body.descriptionField || undefined
+      account.notesField = body.notesField || undefined
+      account.minDate = body.minDate || undefined
+
+      await writeConfig(config)
+      await reloadConfig(fastify)
+
+      // Re-render the component and send it back
+      const actualAccount = fastify.actualClient.accountWithID(account.actualId)
+      const updatedContent = AccountDetail({ connectionName, account, actualAccount })
+
+      return reply.type('text/html').send(updatedContent.toString())
+    } catch (err) {
+      fastify.log.error(err, 'Error updating account details')
+      return reply.status(500).send('Error updating account. Check server logs.')
     }
   })
 
