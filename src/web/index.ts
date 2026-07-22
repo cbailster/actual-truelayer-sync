@@ -74,7 +74,10 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
   await fastify.register(fastifyCookie)
   await fastify.register(fastifySession, {
     // TODO: Move this to an environment variable for production
-    secret: process.env.SESSION_SECRET || 'a-very-long-and-super-secret-key-for-sessions'
+    secret: process.env.SESSION_SECRET || 'a-very-long-and-super-secret-key-for-sessions',
+    cookie: { 
+      secure: false
+    },
   })
 
   // Decorate fastify with the config and a method to reload it
