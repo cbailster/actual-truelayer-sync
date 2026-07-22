@@ -183,7 +183,7 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
       return reply.type('text/html').status(400).send(content.toString())
     }
 
-    // TODO: If valid, save the connection and redirect
+    // If valid, save the connection and redirect
     fastify.config.connections.push(connectionCopy)
     await writeConfig(fastify.config)
     await updateStateJson(fastify.config, connection.name, tokens.refresh_token)
@@ -203,7 +203,8 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
       // 2. Exchange code for tokens
       let tokens: { access_token: string; refresh_token: string }
       try {
-        const redirectUri = request.protocol + '://' + request.hostname + (request.port != 80 && request.port != 443 ? `:${request.port}` : '') + '/callback'
+        const baseUri = fastify.config.env.SERVER_URL || (request.protocol + '://' + request.hostname + (request.port != 80 && request.port != 443 ? `:${request.port}` : ''))
+        const redirectUri = baseUri + '/callback'
         tokens = await exchangeCode(fastify.config.env.TRUELAYER_CLIENT_ID, fastify.config.env.TRUELAYER_CLIENT_SECRET, code, redirectUri)
       } catch (err) {
         fastify.log.error(err, `Error exchanging code for tokens ${err instanceof Error ? err.message : String(err)}`)

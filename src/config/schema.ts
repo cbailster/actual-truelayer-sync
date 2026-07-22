@@ -49,6 +49,7 @@ export const EnvSchema = z.object({
   DEBUG: z.string().optional(),
   TZ: z.string().optional(),
   LOG_FORMAT: z.enum(['text', 'json']).default('json'),
+  SERVER_URL: z.httpUrl().optional()
 })
 
 export const AccountStateSchema = z.object({
