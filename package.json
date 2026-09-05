@@ -26,7 +26,7 @@
     "node": ">=24.0.0"
   },
   "dependencies": {
-    "@actual-app/api": "26.7.0",
+    "@actual-app/api": "26.9.0",
     "dayjs": "1.11.21",
     "@fastify/cookie": "11.0.2",
     "@fastify/formbody": "8.0.2",
