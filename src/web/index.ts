@@ -103,7 +103,8 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
       await reloadConfig(fastify)
       const config = fastify.config
       const { error } = request.query as { error?: string }
-      const callbackUri = `${request.protocol}://${request.hostname}${request.port != 80 && request.port != 443 ? `:${request.port}` : ''}/callback`
+      const baseUri = fastify.config.env.SERVER_URL || (request.protocol + '://' + request.hostname + (request.port != 80 && request.port != 443 ? `:${request.port}` : ''))
+      const callbackUri = baseUri + '/callback'
       const content = homePage(config, callbackUri, fastify.actualClient.status, fastify.actualClient, error)
       reply.type('text/html').send(content.toString())
     } catch (err) {
