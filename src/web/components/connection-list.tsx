@@ -6,17 +6,73 @@ import { ActualClient } from '../actual-client'
 
 dayjs.extend(relativeTime)
 
+const connectionSortScript = `
+  (() => {
+    const select = document.getElementById('connection-sort')
+    const list = document.getElementById('connection-list')
+
+    if (!select || !list) return
+
+    select.addEventListener('change', () => {
+      const connections = Array.from(list.children)
+      const sort = select.value
+
+      connections.sort((a, b) => {
+        if (sort === 'name') {
+          return a.dataset.connectionName.localeCompare(b.dataset.connectionName)
+        }
+
+        if (sort === 'expiry') {
+          const expiryA = a.dataset.connectionExpiry ? Number(a.dataset.connectionExpiry) : Number.POSITIVE_INFINITY
+          const expiryB = b.dataset.connectionExpiry ? Number(b.dataset.connectionExpiry) : Number.POSITIVE_INFINITY
+          return expiryA - expiryB
+        }
+
+        return Number(a.dataset.connectionIndex) - Number(b.dataset.connectionIndex)
+      })
+
+      list.replaceChildren(...connections)
+    })
+  })()
+`
+
 export const ConnectionList = ({ connections, actualClient, callbackUri, clientId }: { connections: Connection[], actualClient: ActualClient, callbackUri: string, clientId: string }) => {
   return (
-    <div class="my-4 mx-8 space-y-2">
-      {connections.map((connection) => (
-        <div class="collapse collapse-arrow bg-base-200" key={connection.name}>
+    <div class="my-4 mx-8">
+      <div class="flex items-center justify-end gap-2 mb-4">
+        <label for="connection-sort" class="text-sm font-medium">Sort connections</label>
+        <select id="connection-sort" class="select select-sm select-bordered" aria-label="Sort connections">
+          <option value="original">Original order</option>
+          <option value="name">Connection name</option>
+          <option value="expiry">Days until expiry</option>
+        </select>
+      </div>
+      <div id="connection-list" class="space-y-2">
+        {connections.map((connection, index) => (
+          <div
+            class="collapse collapse-arrow bg-base-200"
+            data-connection-name={connection.name}
+            data-connection-expiry={connection.consentExpires ? dayjs(connection.consentExpires).valueOf() : ''}
+            data-connection-index={index}
+            key={connection.name}
+          >
           <input type="checkbox" />
           <div class="collapse-title text-lg font-medium flex items-center gap-4">
             { connection.providerID && (
               <img src={`/logo/${connection.name}`} alt={`${connection.name} logo`} class="w-8 h-8 rounded-full" />
             )}
             <span>{connection.name}</span>
+            <progress
+              className={`progress w-56 float-right ml-auto ${
+                connection.consentExpires && dayjs(connection.consentExpires).diff(dayjs(), 'day') > 30
+                  ? 'progress-success'
+                  : connection.consentExpires && dayjs(connection.consentExpires).diff(dayjs(), 'day') > 14
+                    ? 'progress-warning'
+                    : 'progress-error'
+              }`}
+              value={connection.consentExpires ? dayjs(connection.consentExpires).diff(dayjs(), 'day') : 0}
+              max="90"
+            ></progress>
           </div>
           <div class="collapse-content">
             <div class="flex items-center gap-2 mb-4">
@@ -41,8 +97,10 @@ export const ConnectionList = ({ connections, actualClient, callbackUri, clientI
               ))}
             </div>
           </div>
-        </div>
-      ))}
+          </div>
+        ))}
+      </div>
+      <script dangerouslySetInnerHTML={{ __html: connectionSortScript }} />
     </div>
   )
 }
