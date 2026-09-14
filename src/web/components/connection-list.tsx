@@ -6,7 +6,7 @@ import { ActualClient } from '../actual-client'
 
 dayjs.extend(relativeTime)
 
-export const ConnectionList = ({ connections, actualClient }: { connections: Connection[], actualClient: ActualClient }) => {
+export const ConnectionList = ({ connections, actualClient, callbackUri, clientId }: { connections: Connection[], actualClient: ActualClient, callbackUri: string, clientId: string }) => {
   return (
     <div class="my-4 mx-8 space-y-2">
       {connections.map((connection) => (
@@ -19,6 +19,14 @@ export const ConnectionList = ({ connections, actualClient }: { connections: Con
             <span>{connection.name}</span>
           </div>
           <div class="collapse-content">
+            <div class="flex items-center gap-2 mb-4">
+              <a
+                href={`https://auth.truelayer.com/?response_type=code&client_id=${clientId}&state=${connection.name}&scope=${connection.isCard ? 'cards' : 'accounts'}%20balance%20transactions%20offline_access&redirect_uri=${encodeURIComponent(callbackUri)}&providers=uk-ob-all%20uk-oauth-all`}
+                class="btn btn-sm btn-success ml-auto float-right"
+              >
+                Reauthenticate
+              </a>
+            </div>
             <ConnectionDetails connection={connection} />
 
             <div class="space-y-2 pt-2">

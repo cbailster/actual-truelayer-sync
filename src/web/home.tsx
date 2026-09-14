@@ -7,6 +7,7 @@ import { ActualClient } from './actual-client'
 
 export const homePage = (
   config: Config,
+  callbackUri: string,
   actualClientStatus: ActualConnectionStatus,
   actualClient: ActualClient,
   error?: string,
@@ -31,43 +32,24 @@ export const homePage = (
           {actualClientStatus}
         </span>
       </div>
-      <div id="truelayer-auth" class="flex justify-between items-center" data-client-id={config.env.TRUELAYER_CLIENT_ID}>
+      <div id="truelayer-auth" class="flex justify-between items-center">
         <h2 class="text-xl font-semibold mb-2">TrueLayer Connections</h2>
         <div class="flex gap-2">
-          <button
+          <a
+            href={`https://auth.truelayer.com/?response_type=code&client_id=${config.env.TRUELAYER_CLIENT_ID}&scope=accounts%20balance%20transactions%20offline_access&redirect_uri=${encodeURIComponent(callbackUri)}&providers=uk-ob-all%20uk-oauth-all`}
             class="btn btn-sm btn-primary"
-            data-scope="accounts balance transactions offline_access"
           >
             Add Bank
-          </button>
-          <button
+          </a>
+          <a
+            href={`https://auth.truelayer.com/?response_type=code&client_id=${config.env.TRUELAYER_CLIENT_ID}&scope=cards%20balance%20transactions%20offline_access&redirect_uri=${encodeURIComponent(callbackUri)}&providers=uk-ob-all%20uk-oauth-all`}
             class="btn btn-sm btn-primary"
-            data-scope="cards balance transactions offline_access"
           >
             Add Credit Card
-          </button>
+          </a>
         </div>
       </div>
-      <ConnectionList connections={config.connections} actualClient={actualClient} />
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-          const authContainer = document.getElementById('truelayer-auth');
-          authContainer.addEventListener('click', (event) => {
-            const button = event.target.closest("button[data-scope]");
-            if (!button) return;
-
-            const scope = button.dataset.scope;
-            const clientId = authContainer.dataset.clientId;
-            const redirectUri = window.location.origin + "/callback";
-            const params = new URLSearchParams({
-              response_type: "code", client_id: clientId, scope: scope, redirect_uri: redirectUri, providers: "uk-ob-all uk-oauth-all",
-            });
-            window.location.href = "https://auth.truelayer.com/?" + params.toString();
-          });
-        `,
-        }}
-      ></script>
+      <ConnectionList connections={config.connections} actualClient={actualClient} callbackUri={callbackUri} clientId={config.env.TRUELAYER_CLIENT_ID} />
     </Layout>
   )
 }

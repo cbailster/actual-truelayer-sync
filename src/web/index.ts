@@ -103,7 +103,8 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
       await reloadConfig(fastify)
       const config = fastify.config
       const { error } = request.query as { error?: string }
-      const content = homePage(config, fastify.actualClient.status, fastify.actualClient, error)
+      const callbackUri = `${request.protocol}://${request.hostname}${request.port != 80 && request.port != 443 ? `:${request.port}` : ''}/callback`
+      const content = homePage(config, callbackUri, fastify.actualClient.status, fastify.actualClient, error)
       reply.type('text/html').send(content.toString())
     } catch (err) {
       fastify.log.error(err, 'Error loading configuration for web UI')
@@ -132,6 +133,7 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
     return reply.redirect('/map-accounts')
   })
 
+  // Map accounts page route, user is redirected here after the TrueLayer OAuth flow from the callback route.
   fastify.get('/map-accounts', async (request, reply) => {
     
     const { connection, tokens } = request.session
@@ -146,6 +148,7 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
     reply.type('text/html').send(content.toString())
   })
 
+  // Handle form submission from the map accounts page, updating the connection object with the user's selections and saving it to the config.
   fastify.post('/map-accounts', async (request, reply) => {
     const { connection, tokens } = request.session
     if (!connection || !tokens) {
@@ -199,6 +202,7 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
     try {
       // 1. Parse auth code
       const code = (request.query as { code?: string }).code as string
+      const state = (request.query as { state?: string }).state as string
       if (!code) {
         return reply.redirect('/?error=auth_failed')
       }
@@ -223,17 +227,32 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
       }
       const connection:Connection = mapToConnection(me, tlAccounts, {})
 
-      // Store connection data in session
-      request.session.set('connection', connection)
-      request.session.set('tokens', tokens)
+      if (!state) {
+        // Store connection data in session
+        request.session.set('connection', connection)
+        request.session.set('tokens', tokens)
 
-      return reply.redirect('/map-accounts')
+        return reply.redirect('/map-accounts')
+      } else {
+        // If state is present, it means we are in a refresh flow, so we need to update the existing connection in the config and state
+        const connectionName = state
+        const existingConnection = fastify.config.connections.find((c) => c.name === connectionName)
+        if (!existingConnection) {
+          fastify.log.error(`Connection with name ${connectionName} not found in config during refresh flow.`)
+          return reply.redirect('/?error=session_expired')
+        }
+        // Update the existing connection with new data
+        await updateStateJson(fastify.config, connectionName, tokens.refresh_token)
+        await reloadConfig(fastify)
+        return reply.redirect('/')
+      }
     } catch (err) {
       fastify.log.error(err, 'Error handling callback from Truelayer')
       reply.status(500).send('Error handling callback from Truelayer. Check server logs.')
     }
   })
-
+  
+  // Endpoint to refresh the access token and fetch the latest user info from TrueLayer for a specific connection (called from refresh link on the index page)
   fastify.get('/getMe/:connectionName', async (request, reply) => {
     try {
       const { connectionName } = request.params as { connectionName: string }
@@ -278,6 +297,7 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
     }
   })
 
+  // Update account details (description, notes, start date for syncronisation (minDate)) for a specific connection and TrueLayer account
   fastify.post('/account/:connectionName/:trueLayerId', async (request, reply) => {
     try {
       const { connectionName, trueLayerId } = request.params as { connectionName: string; trueLayerId: string }
@@ -313,6 +333,7 @@ const buildApp = async (fastify: import('fastify').FastifyInstance) => {
     }
   })
 
+  // Image endpoint for connection (bank/credit card company) logos. This will first check if the logo is cached in the public directory, and if not, it will fetch it from TrueLayer and cache it.
   fastify.get('/logo/:connectionName', async (request, reply) => {
     try {
       const { connectionName } = request.params as { connectionName: string }
