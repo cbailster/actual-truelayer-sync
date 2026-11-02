@@ -5,7 +5,6 @@ COPY package.json package-lock.json* ./
 RUN npm ci
 COPY tsconfig.json tsconfig.build.json ./
 COPY src/ ./src/
-COPY public/ ./public/
 RUN npm run build
 RUN npm run build:css
 RUN npm prune --omit=dev
