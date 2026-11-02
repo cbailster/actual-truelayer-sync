@@ -1,9 +1,11 @@
 FROM node:24-alpine AS builder
+RUN apk add --no-cache build-base python3
 WORKDIR /build
 COPY package.json package-lock.json* ./
 RUN npm ci
 COPY tsconfig.json tsconfig.build.json ./
 COPY src/ ./src/
+COPY public/ ./public/
 RUN npm run build
 RUN npm run build:css
 RUN npm prune --omit=dev
@@ -15,6 +17,6 @@ COPY package.json ./
 COPY --from=builder /build/node_modules ./node_modules
 COPY --from=builder /build/dist ./dist
 COPY --from=builder --chown=node:node /build/public ./public
-RUN ln -s /app/node_modules/htmx.org/dist/htmx.min.js public/htmx.min.js
+RUN ln -sf /app/node_modules/htmx.org/dist/htmx.min.js public/htmx.min.js
 USER node
 CMD ["npm", "run", "server"]
